@@ -1,23 +1,41 @@
 // src/components/RightPanel/RightPanel.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import io from 'socket.io-client';
 import SearchBar from './SearchBar';
 import LeaderboardTable from './LeaderboardTable';
+import { fetchLeaderboard, updateLeaderboard } from '../../redux/leaderboardSlice';
 
-const mockData = [
-  { rank: 1, username: 'Alice', score: 1500 },
-  { rank: 2, username: 'Bob', score: 1200 },
-  { rank: 3, username: 'Charlie', score: 1100 },
-  { rank: 4, username: 'David', score: 900 },
-  { rank: 5, username: 'Eve', score: 800 },
-  // Add more mock data as needed
-];
+const socket = io('http://localhost:5000');
 
 const RightPanel = () => {
+  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
+  const { data: leaderboardData, status, error } = useSelector(state => state.leaderboard);
 
-  const filteredData = mockData.filter((entry) =>
+  useEffect(() => {
+    dispatch(fetchLeaderboard());
+
+    socket.on('leaderboardUpdate', (newLeaderboard) => {
+      dispatch(updateLeaderboard(newLeaderboard));
+    });
+
+    return () => {
+      socket.off('leaderboardUpdate');
+    };
+  }, [dispatch]);
+
+  const filteredData = leaderboardData.filter((entry) =>
     entry.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (status === 'loading') {
+    return <div>Loading leaderboard...</div>;
+  }
+
+  if (status === 'failed') {
+    return <div>Error loading leaderboard: {error}</div>;
+  }
 
   return (
     <div className="flex flex-col">
