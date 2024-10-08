@@ -77,7 +77,7 @@ cd frontend
 npm run dev
 ```
 
-The game should now be running at `http://localhost:3000`
+The game should now be running at `http://localhost:5173`
 
 ## 🎯 Game Rules
 
