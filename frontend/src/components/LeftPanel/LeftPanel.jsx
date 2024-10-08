@@ -307,7 +307,7 @@ const LeftPanel = () => {
             <audio ref={audioRef} src="/popsound.mp3" />
             
             <div className="relative h-full" onClick={handleCardReveal}>
-  {cards.length > 0 ? (
+  {cards?.length > 0 ? (
     cards.map((card, index) => (
       <div
         key={index}
