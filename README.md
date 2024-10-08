@@ -74,7 +74,7 @@ go run main.go
 3. Start the frontend development server
 ```bash
 cd frontend
-npm start
+npm run dev
 ```
 
 The game should now be running at `http://localhost:3000`
