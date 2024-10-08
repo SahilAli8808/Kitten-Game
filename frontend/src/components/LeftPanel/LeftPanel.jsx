@@ -43,6 +43,8 @@ const LeftPanel = () => {
       console.log('Leaderboard updated:', leaderboard);
     });
 
+    handleGameWon();
+
     return () => {
       socket.off('leaderboardUpdate');
     };
@@ -82,9 +84,30 @@ const LeftPanel = () => {
     }
   };
 
+  // create new cards for the game
+  const CHARACTERS = [
+    'Cat card 😼',
+    'Defuse card 🙅‍♂️',
+    'Shuffle card 🔀',
+    'Exploding kitten card 💣',
+  ];
+  
+  const generateRandomCards = () => {
+    const randomDeck = [];
+    for (let i = 0; i < 5; i++) {
+      const index = Math.floor(Math.random() * CHARACTERS.length);
+      randomDeck.push(CHARACTERS[index]);
+    }
+    return randomDeck;
+  };
+
+
+
+
   const initializeGame = async (userToInitialize = username) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/game?userName=${userToInitialize}`);
+
       const { gameCards } = response.data;
       
       const newState = {
@@ -106,7 +129,31 @@ const LeftPanel = () => {
     }
   };
 
-  const handleConfirm = async () => {
+  const shuffleGame = async (userToInitialize = username) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/game?userName=${userToInitialize}`);
+
+      const gameCards  = generateRandomCards();
+      console.log(gameCards);
+      
+      const newState = {
+        gameCards,
+        score: 0,
+        hasDefuseCard: 'false',
+        activeCard: null
+      };
+      
+      setCards(gameCards);
+      setActiveCard(null);
+      
+      await saveGameState(newState);
+    } catch (error) {
+      console.error('Error initializing game:', error);
+      toast.error('Failed to initialize game');
+    }
+  };
+
+  const handleStartGames = async () => {
     if (!username.trim()) {
       toast.error("Please enter a username!");
       return;
@@ -118,9 +165,18 @@ const LeftPanel = () => {
   };
 
   const handleStartGame = async () => {
-    await initializeGame();
+    await shuffleGame();
     toast.success("New game started! Good luck!");
   };
+
+  //won the game 
+  function handleGameWon() {
+    if (cards.length === 0) {
+      alert("You've won! your score is 10 would you like to play again?");
+      // shuffleGame();
+      return;
+    }
+  }
 
   const handleCardReveal = async () => {
     if (cards.length === 0) {
@@ -159,17 +215,20 @@ const LeftPanel = () => {
         if (defuseCards > 0) {
           setDefuseCards(prev => prev - 1);
           newState.hasDefuseCard = 'false';
-          toast.warning("Bomb defused! Close call!");
+          toast.success("Bomb defused! Close call!");
         } else {
           toast.error("💣 BOOM! Game Over!");
           setTimeout(() => handleStartGame(), 2000);
+          alert("💣 BOOM! Game Over! You loose the Game..Would you like to play again?");
           return;
         }
         break;
       case 'shuffle':
         toast.success("Shuffling deck...");
+
+        
         setTimeout(() => {
-          initializeGame();
+          shuffleGame();
         }, 1000);
         return;
     }
@@ -210,22 +269,22 @@ const LeftPanel = () => {
             placeholder="Enter your username"
             className="flex-grow p-2 border rounded focus:outline-none focus:ring-2"
           />
-          <Button onClick={handleConfirm}>
+          <Button onClick={handleStartGames}>
             Start Game <ArrowRightIcon />
           </Button>
         </div>
       ) : (
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-3">
           <div className="flex space-x-2">
-            <Button onClick={handleStartGame} className="px-4 py-2">
+            {/* <Button onClick={handleStartGame} className="px-4 py-2">
               New Game
-            </Button>
+            </Button> */}
             <Button onClick={handleLogout} className="px-4 py-2">
-              End Game
+              Exit Game
             </Button>
-          </div>
+          </div> 
           <div className="flex space-x-4">
-            <h3 className="text-white text-xl font-semibold ml-4">Score: {score}</h3>
+            <h3 className="text-white text-xl font-semibold ml-3">Score: {score}</h3>
             <h3 className="text-white text-xl font-semibold">Defuse Cards: {defuseCards}</h3>
           </div>
         </div>
@@ -247,20 +306,31 @@ const LeftPanel = () => {
             <audio ref={audioRef} src="/popsound.mp3" />
             
             <div className="relative h-full" onClick={handleCardReveal}>
-              {cards.map((card, index) => (
-                <div
-                  key={index}
-                  className="absolute top-0 bg-gray-800 border border-gray-600 rounded-lg shadow-lg w-24 h-32 flex items-center justify-center text-white cursor-pointer transition-transform transform hover:scale-105"
-                  style={{
-                    left: `${index * 30}px`,
-                    zIndex: cards.length - index,
-                    transform: `rotate(${index * 5}deg)`,
-                  }}
-                >
-                  <span className="text-4xl font-bold">?</span>
-                </div>
-              ))}
-            </div>
+  {cards.length > 0 ? (
+    cards.map((card, index) => (
+      <div
+        key={index}
+        className="absolute top-0 bg-gray-800 border border-gray-600 rounded-lg shadow-lg w-24 h-32 flex items-center justify-center text-white cursor-pointer transition-transform transform hover:scale-105"
+        style={{
+          left: `${index * 30}px`,
+          zIndex: cards.length - index,
+          transform: `rotate(${index * 5}deg)`,
+        }}
+      >
+        <span className="text-4xl font-bold">?</span>
+      </div>
+    ))
+  ) : (
+    // Congratulations! You've won the game!
+    <div className="">
+      <h1 className="text-lg font-bold mb-3">🎉 Congratulations! You Won the Game..</h1>
+      <Button onClick={handleStartGame} className="px-4 py-2 mt-4">
+        Play Again
+      </Button>
+    </div>
+  )}
+</div>
+
 
             <div className="mt-36 flex items-center">
               <h3 className="text-white text-xl font-semibold mr-2">Active Card:</h3>

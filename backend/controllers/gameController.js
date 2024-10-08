@@ -2,6 +2,18 @@ const redisClient = require('../config/client');
 const { generateRandomCards } = require('../utils/index');
 const { getLatestLeaderboard } = require('../utils/redisHelper');
 
+// Helper function to save the game state
+const saveGameState = async (userName, gameCards, score, hasDefuseCard, activeCard) => {
+  await redisClient.hmset(
+    userName,
+    'gameCards', JSON.stringify(gameCards),
+    'hasDefuseCard', hasDefuseCard,
+    'activeCard', activeCard,
+    'score', score
+  );
+  await redisClient.zadd('leaderboard', score, userName); // Update leaderboard score
+};
+
 // Start or get game details for a user
 const getGame = async (req, res) => {
   try {
@@ -46,15 +58,8 @@ const updateGame = async (req, res) => {
     const { userName, hasDefuseCard, activeCard, score = 0 } = req.body;
     const gameCards = req.body.gameCards || generateRandomCards();
 
-    await redisClient.hmset(
-      userName,
-      'gameCards', JSON.stringify(gameCards),
-      'hasDefuseCard', hasDefuseCard,
-      'activeCard', activeCard,
-      'score', score
-    );
-
-    await redisClient.zadd('leaderboard', score, userName);
+    // Auto-save the game state after any significant action
+    await saveGameState(userName, gameCards, score, hasDefuseCard, activeCard);
 
     // Emit the latest leaderboard
     const leaderboardLatest = await getLatestLeaderboard();
@@ -72,6 +77,7 @@ const resetGame = async (req, res) => {
   try {
     const { userName } = req.body;
 
+    // Reset the game state
     await redisClient.hmset(
       userName,
       'gameCards', '[]',
@@ -93,9 +99,17 @@ const resetGame = async (req, res) => {
   }
 };
 
+// Auto-save feature: Whenever game state is changed, save it in Redis
+const autoSaveGameState = async (userName, gameCards, score, hasDefuseCard, activeCard) => {
+  try {
+    await saveGameState(userName, gameCards, score, hasDefuseCard, activeCard);
+  } catch (error) {
+    console.error('Error auto-saving game state:', error);
+  }
+};
 
 module.exports = {
   getGame,
   updateGame,
-  resetGame
+  resetGame,
 };
