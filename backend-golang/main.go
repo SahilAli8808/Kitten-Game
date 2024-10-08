@@ -1,24 +1,18 @@
 package main
 
 import (
+	"backend-golang/config"
+	"backend-golang/routes"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"backend-golang/config"
-	"backend-golang/routes"
-
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 func main() {
 	// Load environment variables
@@ -33,29 +27,51 @@ func main() {
 	// Create router
 	r := mux.NewRouter()
 
+	// Create Socket.IO server
+	server := socketio.NewServer(nil)
+
+	// Socket.IO event handlers
+	server.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		fmt.Println("connected:", s.ID())
+		return nil
+	})
+
+	server.OnEvent("/", "msg", func(s socketio.Conn, msg string) {
+		fmt.Println("message:", msg)
+		s.Emit("reply", "got "+msg)
+	})
+
+	server.OnError("/", func(s socketio.Conn, e error) {
+		fmt.Println("error:", e)
+	})
+
+	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+		fmt.Println("closed", reason)
+	})
+
+	go server.Serve()
+	defer server.Close()
+
 	// Use the routes from other files
 	routes.SetupGameRoutes(r, redisClient)
 	routes.SetupLeaderboardRoutes(r, redisClient)
 
-	// WebSocket setup
-	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Println("WebSocket Upgrade failed:", err)
-			return
-		}
-		defer conn.Close()
+	// Handle Socket.IO
+	r.Handle("/socket.io/", server)
 
-		log.Println("WebSocket connected")
-
-		for {
-			_, _, err := conn.ReadMessage()
-			if err != nil {
-				log.Println("WebSocket disconnected:", err)
-				break
-			}
-		}
+	// Create a CORS middleware
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Add your frontend URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
 	})
+
+	// Use the CORS middleware
+	handler := c.Handler(r)
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -63,5 +79,5 @@ func main() {
 		port = "5000"
 	}
 	log.Printf("Server running on port %s", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), r))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), handler))
 }
