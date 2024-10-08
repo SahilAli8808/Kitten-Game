@@ -5,6 +5,8 @@ import io from 'socket.io-client';
 import SearchBar from './SearchBar';
 import LeaderboardTable from './LeaderboardTable';
 import { fetchLeaderboard, updateLeaderboard } from '../../redux/leaderboardSlice';
+import { Callout } from '@radix-ui/themes';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
 
 const socket = io('http://localhost:5000');
 
@@ -30,16 +32,33 @@ const RightPanel = () => {
   );
 
   if (status === 'loading') {
-    return <div>Loading leaderboard...</div>;
+    return <div>
+      <h1 className="mb-4 text-2xl font-semibold">Leaderboard</h1>
+      <h4 className="mb-4 text-xl">Loading leaderboard...</h4>
+      </div>;
   }
 
   if (status === 'failed') {
-    return <div>Error loading leaderboard: {error}</div>;
+    return <div>
+      <h1 className="mb-4 text-4xl font-semibold">Leaderboard</h1>
+      <h4 className="mb-4 text-2xl text-red-500">😢 OOps! Looks like you have't Start your Server</h4>
+      
+      <Callout.Root>
+	<Callout.Icon>
+		<InfoCircledIcon />
+	</Callout.Icon>
+	<Callout.Text>
+  Make Sure you have start your Server and Redis Server {error}
+	</Callout.Text>
+</Callout.Root>
+      </div>;
   }
 
   return (
     <div className="flex flex-col">
-      <h2 className="mb-4 text-2xl font-semibold">Leaderboard</h2>
+      <h2 className="mb-4 text-4xl font-semibold">Leaderboard</h2>
+      <h2 className="mb-4 text-xl font-semibold">Real-time updating leaderboard</h2>
+
       <SearchBar value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
       <LeaderboardTable data={filteredData} />
     </div>

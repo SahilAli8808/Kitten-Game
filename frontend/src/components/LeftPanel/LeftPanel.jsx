@@ -43,7 +43,7 @@ const LeftPanel = () => {
       console.log('Leaderboard updated:', leaderboard);
     });
 
-    handleGameWon();
+    // handleGameWon();
 
     return () => {
       socket.off('leaderboardUpdate');
@@ -138,7 +138,7 @@ const LeftPanel = () => {
       
       const newState = {
         gameCards,
-        score: 0,
+        // score: 0,
         hasDefuseCard: 'false',
         activeCard: null
       };
@@ -255,9 +255,10 @@ const LeftPanel = () => {
 
   return (
     <div className="flex flex-col p-6 rounded-lg shadow-lg w-auto">
-      <h1 className="text-3xl text-white font-bold mb-2">Exploding Kitten Game</h1>
-      <p className="text-white mb-4">
-        {isConfirmed ? `Welcome back, ${username}!` : 'Enter your username to continue your game!'}
+      <h2 className="text-3xl font-bold mb-2">Exploding Kitten Game</h2>
+  
+      <p className="mb-4">
+        {isConfirmed ? `Welcome , ${username}!` : 'Enter your username to continue your game!'}
       </p>
 
       {!isConfirmed ? (
