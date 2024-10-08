@@ -90,5 +90,7 @@ The game should now be running at `http://localhost:3000`
    - Exploding kitten card: Game over (unless you have a defuse card)
 4. Win by successfully drawing all 5 cards without losing to an exploding kitten
 
+## Lets Play!
+
 
 
