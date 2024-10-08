@@ -11,9 +11,17 @@ const redisClient = require('./config/client');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server,{
+  cors: {
+    origin: '*', // Allow all origins
+  }
+});
 
-app.use(cors());
+app.use(cors(
+  {
+    origin: '*' // Allow all origins
+  }
+));
 app.use(bodyParser.json());
 
 // WebSocket middleware

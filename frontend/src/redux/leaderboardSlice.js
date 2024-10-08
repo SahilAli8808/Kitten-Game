@@ -6,7 +6,7 @@ const API_BASE_URL = 'http://localhost:5000';
 export const fetchLeaderboard = createAsyncThunk(
   'leaderboard/fetchLeaderboard',
   async () => {
-    const response = await axios.get(`${API_BASE_URL}/leader-board`);
+    const response = await axios.get(`${API_BASE_URL}/leaderboard`);
     return response.data.map((entry, index) => ({
       rank: index + 1,
       username: entry.userName,
