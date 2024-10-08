@@ -1,8 +1,9 @@
-import { Button } from '@radix-ui/themes';
+import { Button, Callout } from '@radix-ui/themes';
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import io from 'socket.io-client';
+import { ArrowRightIcon, InfoCircledIcon }  from "@radix-ui/react-icons"
 
 const API_BASE_URL = 'http://localhost:5000';
 const socket = io(API_BASE_URL);
@@ -210,7 +211,7 @@ const LeftPanel = () => {
             className="flex-grow p-2 border rounded focus:outline-none focus:ring-2"
           />
           <Button onClick={handleConfirm}>
-            Continue Game
+            Start Game <ArrowRightIcon />
           </Button>
         </div>
       ) : (
@@ -220,11 +221,11 @@ const LeftPanel = () => {
               New Game
             </Button>
             <Button onClick={handleLogout} className="px-4 py-2">
-              Logout
+              End Game
             </Button>
           </div>
           <div className="flex space-x-4">
-            <h3 className="text-white text-xl font-semibold">Score: {score}</h3>
+            <h3 className="text-white text-xl font-semibold ml-4">Score: {score}</h3>
             <h3 className="text-white text-xl font-semibold">Defuse Cards: {defuseCards}</h3>
           </div>
         </div>
@@ -232,7 +233,16 @@ const LeftPanel = () => {
 
       {isConfirmed && (
         <>
-          <h6 className="text-md text-white font-bold mb-2">Tap on the deck to reveal the card</h6>
+          {/* <h6 className="text-md text-white font-bold mb-2">Tap on the deck to reveal the card</h6> */}
+          <Callout.Root>
+	<Callout.Icon>
+		<InfoCircledIcon />
+	</Callout.Icon>
+	<Callout.Text>
+  Tap on the deck to reveal the card
+	</Callout.Text>
+</Callout.Root>
+
           <div className="relative h-40 w-full flex flex-col mt-4">
             <audio ref={audioRef} src="/popsound.mp3" />
             
