@@ -5,7 +5,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import { ArrowRightIcon, InfoCircledIcon }  from "@radix-ui/react-icons"
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const socket = io(API_BASE_URL);
 
 const cardTypes = {

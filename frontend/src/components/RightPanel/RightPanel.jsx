@@ -8,7 +8,7 @@ import { fetchLeaderboard, updateLeaderboard } from '../../redux/leaderboardSlic
 import { Callout } from '@radix-ui/themes';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 
-const socket = io('http://localhost:5000');
+const socket = io(import.meta.env.VITE_BACKEND_URL);
 
 const RightPanel = () => {
   const dispatch = useDispatch();

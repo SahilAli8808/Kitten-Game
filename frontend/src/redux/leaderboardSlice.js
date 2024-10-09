@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const fetchLeaderboard = createAsyncThunk(
   'leaderboard/fetchLeaderboard',
