@@ -6,6 +6,17 @@ A web-based single-player card game built with React, Go, and Redis.
 
 Exploding Kittens is an exciting card game where players draw cards from a deck of 5 cards. The objective is to draw all cards without drawing an exploding kitten, unless you have a defuse card!
 
+## 📸 Screenshots
+
+![Gameplay](https://github.com/SahilAli8808/Kitten-Game/blob/main/frontend/public/Screenshot.jpg)
+
+
+## 📦 Features
+
+- Real-time update of points on the leaderboard for all the users if they are playing simultaneously.
+- Automatically save the game for a user at every stage so the user can continue from where he left off last time.
+
+
 ## 🛠️ Tech Stack
 
 - Frontend:
@@ -14,7 +25,7 @@ Exploding Kittens is an exciting card game where players draw cards from a deck 
   - Radix UI (component library)
   - TailwindCSS (styling)
 - Backend:
-  - Go (Golang)
+  - Nodejs (Express)
 - Database:
   - Redis
 
@@ -23,7 +34,6 @@ Exploding Kittens is an exciting card game where players draw cards from a deck 
 ### Prerequisites
 
 - Node.js (v16 or higher)
-- Go (v1.16 or higher)
 - Redis (v6 or higher)
 
 ### Installation
