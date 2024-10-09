@@ -8,36 +8,31 @@ import { Separator } from "@radix-ui/themes";
 
 function App() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-screen">
       {/* Header Component */}
       <Header />
 
       {/* Main Content Area (below the header) */}
-      <div className="flex flex-grow pt-16"> {/* Added pt-16 to offset the fixed header */}
+      <div className="flex flex-grow pt-16 overflow-hidden flex-col md:flex-row"> {/* Use flex-col for mobile and md:flex-row for larger screens */}
+        
         {/* Left Panel - Game Details */}
-        <div className="w-3/4 flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center px-4 md:px-8"> {/* Use flex-grow for responsiveness */}
           <LeftPanel />
         </div>
-
-        {/* Separator */}
-        <Separator
+   {/* Separator */}
+   {/* <Separator
           orientation="vertical"
           size="3"
           style={{
             height: "80%",
             width: "2px",
-            // backgroundColor: "#e5e7eb", // Light gray color for better visibility
             margin: "auto",
           }}
-        />
-
+        /> */}
         {/* Right Panel - Leaderboard */}
-        <div className="w-1/3 mt-16 ml-8">
+        <div className="flex flex-col w-full md:w-1/3 mt-4 md:mt-16 md:mr-20 px-4"> {/* Change to w-full for mobile and md:w-1/3 for larger screens */}
           <RightPanel />
         </div>
-
-        {/* Optional Empty Div (adjust if needed) */}
-        <div className="w-1/5"></div>
       </div>
 
       <Toaster />
